@@ -1,1 +1,1 @@
-export { AppContext, AppProvider } from './AppContext'
+export { CartContext, CartProvider } from './CartContext'

@@ -1,1 +1,5 @@
-export { default as HomePage } from './HomePage'
+export { default as BuildBasketPage } from './BuildBasketPage'
+export { default as DeliveryPage } from './DeliveryPage'
+export { default as ReviewPage } from './ReviewPage'
+export { default as SelectBasketPage } from './SelectBasketPage'
+export { default as SuccessPage } from './SuccessPage'

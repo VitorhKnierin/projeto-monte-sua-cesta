@@ -1,11 +1,11 @@
-import { AppProvider } from './context'
+import { CartProvider } from './context'
 import { AppRoutes } from './routes'
 
 function App() {
   return (
-    <AppProvider>
+    <CartProvider>
       <AppRoutes />
-    </AppProvider>
+    </CartProvider>
   )
 }
 
