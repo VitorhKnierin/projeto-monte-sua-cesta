@@ -1,12 +1,7 @@
-import { CartProvider } from './context'
-import { AppRoutes } from './routes'
+import AppRoutes from './routes/AppRoutes'
 
 function App() {
-  return (
-    <CartProvider>
-      <AppRoutes />
-    </CartProvider>
-  )
+  return <AppRoutes />
 }
 
 export default App

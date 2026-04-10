@@ -1,16 +1,29 @@
-# React + Vite
+# Monte Sua Cesta
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Projeto desenvolvido para permitir a montagem personalizada de cestas, facilitando a seleção de itens e a organização do pedido.
 
-Currently, two official plugins are available:
+## Objetivo
+O sistema foi criado com o objetivo de oferecer uma forma prática de montar uma cesta personalizada, permitindo ao usuário escolher os produtos de forma simples e organizada.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Funcionalidades
+- Seleção de produtos para a cesta
+- Organização dos itens escolhidos
+- Interface intuitiva para montagem
+- Visualização da composição da cesta
 
-## React Compiler
+## Tecnologias utilizadas
+- HTML
+- CSS
+- JavaScript
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Como executar
+1. Baixe ou clone este repositório
+2. Abra a pasta do projeto
+3. Execute o arquivo principal no navegador
 
-## Expanding the ESLint configuration
+## Imagens do projeto
+![Escolha das Cestas](./imgs/Cesta.png)
+![Escolha dos Produtos](./imgs/Produtos.png)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Autor
+Vitor Knierin
