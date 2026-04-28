@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context'
 import routePaths from '../routes/routePaths'
@@ -5,6 +6,8 @@ import { mockBaskets } from '../services'
 import { formatCurrency } from '../utils'
 import './SelectBasketPage.css'
 import emporiologo from '../assets/emporiologo.jpg'
+
+const ALL_CAPACITIES_FILTER = 'Todos os tamanhos'
 
 const checkoutSteps = [
   { id: 'basket', label: 'Escolha da cesta', icon: '01' },
@@ -15,6 +18,23 @@ const checkoutSteps = [
 function SelectBasketPage() {
   const navigate = useNavigate()
   const { cart, selectBasket } = useCart()
+  const [activeCapacity, setActiveCapacity] = useState(ALL_CAPACITIES_FILTER)
+
+  const capacityFilters = useMemo(() => {
+    const capacities = [...new Set(mockBaskets.map((basket) => basket.capacity))]
+
+    return [ALL_CAPACITIES_FILTER, ...capacities.map((capacity) => `${capacity} itens`)]
+  }, [])
+
+  const filteredBaskets = useMemo(() => {
+    if (activeCapacity === ALL_CAPACITIES_FILTER) {
+      return mockBaskets
+    }
+
+    const selectedCapacity = Number(activeCapacity.replace(/\D/g, ''))
+
+    return mockBaskets.filter((basket) => basket.capacity === selectedCapacity)
+  }, [activeCapacity])
 
   function handleSelectBasket(basket) {
     selectBasket(basket)
@@ -24,130 +44,163 @@ function SelectBasketPage() {
   return (
     <main className="select-basket-page">
       <div className="select-basket-shell">
-        <aside className="select-basket-sidebar" aria-label="Apresentacao da etapa">
-          <div className="select-sidebar-brand">
-            <div className="select-sidebar-brand-logo-wrap">
+        <aside className="select-basket-sidebar" aria-label="Filtros de tamanho da cesta">
+          <div className="sidebar-brand">
+            <div className="sidebar-brand-logo-wrap">
               <img
                 src={emporiologo}
                 alt="Logo do Emporio Sobreiro"
-                className="select-sidebar-brand-logo"
+                className="sidebar-brand-logo"
               />
             </div>
           </div>
 
-          <div className="select-sidebar-copy">
-            <p className="select-sidebar-label">Montagem personalizada</p>
-            <h2>Comece pela cesta perfeita</h2>
-            <p className="select-sidebar-text">
-              Escolha a base do presente para definir a capacidade e seguir para a selecao
-              dos produtos.
-            </p>
+          <div className="sidebar-section">
+            <p className="sidebar-section-label">Filtros</p>
+
+            <div className="category-filter">
+              {capacityFilters.map((capacityFilter) => (
+                <button
+                  type="button"
+                  key={capacityFilter}
+                  onClick={() => setActiveCapacity(capacityFilter)}
+                  className={
+                    capacityFilter === activeCapacity
+                      ? 'category-button active'
+                      : 'category-button'
+                  }
+                >
+                  {capacityFilter}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="select-sidebar-highlight">
-            <span className="select-sidebar-highlight-label">Curadoria premium</span>
-            <strong>Modelos elegantes para presentes sob medida</strong>
+          <div className="sidebar-bottom">
+            <p className="sidebar-helper">
+              Escolha a base ideal para definir o espaco disponivel da cesta antes de
+              selecionar os produtos.
+            </p>
+
+            <div className="select-sidebar-highlight">
+              <p className="sidebar-section-label">Curadoria premium</p>
+              <strong>{mockBaskets.length} modelos para presentes sob medida</strong>
+              <p className="sidebar-helper">
+                O total do pedido sera calculado com o preco da cesta mais os itens da
+                proxima etapa.
+              </p>
+            </div>
           </div>
         </aside>
 
-        <div className="select-basket-content">
-          <header className="select-basket-topbar">
-            <div className="select-topbar-heading">
-              <span className="select-topbar-logo">Emporio Sobreiro</span>
+        <div className="build-basket-content">
+          <header className="build-basket-topbar">
+            <div className="topbar-heading">
+              <span className="topbar-logo">Emporio Sobreiro</span>
 
               <div>
-                <p className="select-topbar-eyebrow">Etapa inicial</p>
-                <h1>Escolha sua cesta</h1>
+                <p className="topbar-eyebrow">Etapa inicial</p>
+                <h1>Monte sua cesta</h1>
                 <p className="select-topbar-description">
-                  Selecione o modelo ideal para iniciar a montagem do presente.
+                  Escolha o modelo de cesta ideal para iniciar a montagem do presente.
                 </p>
               </div>
             </div>
 
-            <ol className="select-checkout-stepper" aria-label="Etapas do pedido">
+            <ol className="checkout-stepper" aria-label="Etapas do pedido">
               {checkoutSteps.map((step) => (
                 <li
                   key={step.id}
-                  className={
-                    step.id === 'basket'
-                      ? 'select-checkout-step active'
-                      : 'select-checkout-step'
-                  }
+                  className={step.id === 'basket' ? 'checkout-step active' : 'checkout-step'}
                 >
-                  <span className="select-checkout-step-icon" aria-hidden="true">
+                  <span className="checkout-step-icon" aria-hidden="true">
                     {step.icon}
                   </span>
-                  <span className="select-checkout-step-label">{step.label}</span>
+                  <span className="checkout-step-label">{step.label}</span>
                 </li>
               ))}
             </ol>
           </header>
 
-          <section className="select-basket-hero" aria-label="Resumo da etapa atual">
-            <div className="select-basket-hero-copy">
-              <p className="select-basket-hero-label">Escolha da base</p>
-              <h2>Defina o estilo e a capacidade da cesta</h2>
-              <p className="select-basket-hero-text">
-                O valor total do pedido sera calculado com base no preco da cesta mais os
-                produtos adicionados na proxima etapa.
+          <section className="selected-basket-banner" aria-label="Resumo da etapa atual">
+            <div className="selected-basket-copy">
+              <p className="selected-basket-label">Escolha da cesta</p>
+              <h2>Defina a base do presente</h2>
+              <p className="selected-basket-meta">
+                Selecione a cesta que melhor combina com a ocasiao e com a quantidade de
+                itens que voce deseja montar.
               </p>
             </div>
 
-            <div className="select-basket-hero-summary">
-              <span>Cestas disponiveis</span>
-              <strong>{mockBaskets.length}</strong>
-              <p>Selecione uma opcao para continuar para a montagem.</p>
+            <div className="selected-basket-capacity">
+              <div className="capacity-heading">
+                <span>Modelos visiveis</span>
+                <strong>{filteredBaskets.length}</strong>
+              </div>
+
+              <div className="capacity-bar" aria-hidden="true">
+                <span
+                  style={{
+                    width: `${Math.max((filteredBaskets.length / mockBaskets.length) * 100, 12)}%`,
+                  }}
+                />
+              </div>
+
+              <p className="capacity-indicator">
+                {activeCapacity === ALL_CAPACITIES_FILTER
+                  ? 'Visualize todos os tamanhos disponiveis antes de escolher.'
+                  : `Filtro ativo: ${activeCapacity}.`}
+              </p>
             </div>
           </section>
 
-          <section className="select-basket-section" aria-label="Opcoes de cestas">
-            <div className="select-basket-section-header">
+          <section className="products-section" aria-label="Lista de cestas">
+            <div className="products-section-header">
               <div>
-                <p className="select-basket-section-label">Modelos disponiveis</p>
-                <h2>Escolha a composicao ideal</h2>
+                <p className="products-section-label">Catalogo</p>
+                <h2>Cestas para selecionar</h2>
               </div>
 
-              <span className="select-basket-count">{mockBaskets.length} opcoes</span>
+              <span className="products-count">
+                {filteredBaskets.length} opcao{filteredBaskets.length === 1 ? '' : 'oes'} em{' '}
+                {activeCapacity}
+              </span>
             </div>
 
-            <div className="basket-grid">
-              {mockBaskets.map((basket) => {
+            <div className="products-grid basket-products-grid">
+              {filteredBaskets.map((basket) => {
                 const isSelected = cart.selectedBasket?.id === basket.id
 
                 return (
                   <article
+                    className={`product-card basket-card ${isSelected ? 'product-card-selected' : ''}`}
                     key={basket.id}
-                    className={`basket-card ${isSelected ? 'basket-card-selected' : ''}`}
                   >
-                    <div className="basket-card-image-wrap">
+                    <div className="product-image-wrap basket-card-image-wrap">
                       <img
                         src={basket.image}
                         alt={`Imagem da ${basket.name}`}
-                        className="basket-card-image"
+                        className="product-image basket-card-image"
                       />
                     </div>
 
-                    <div className="basket-card-copy">
-                      <p className="basket-card-kicker">Cesta selecionavel</p>
+                    <div className="product-info basket-card-info">
+                      <p className="product-category">Cesta selecionavel</p>
                       <h3>{basket.name}</h3>
-                      <p className="basket-card-capacity">Capacidade de ate {basket.capacity} itens</p>
+                      <p className="basket-card-capacity">
+                        Capacidade maxima de {basket.capacity} itens
+                      </p>
+                      <p className="product-price">{formatCurrency(basket.price)}</p>
                     </div>
 
-                    <div className="basket-card-footer">
-                      <div className="basket-card-price-block">
-                        <span>Preco base</span>
-                        <strong className="basket-card-price">{formatCurrency(basket.price)}</strong>
-                      </div>
-
-                      <button
-                        type="button"
-                        className="basket-card-button"
-                        onClick={() => handleSelectBasket(basket)}
-                        aria-label={`Selecionar ${basket.name} e continuar`}
-                      >
-                        Selecionar e continuar
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      className="basket-card-button"
+                      onClick={() => handleSelectBasket(basket)}
+                      aria-label={`Selecionar ${basket.name} e continuar`}
+                    >
+                      {isSelected ? 'Selecionada - continuar' : 'Selecionar e continuar'}
+                    </button>
                   </article>
                 )
               })}
