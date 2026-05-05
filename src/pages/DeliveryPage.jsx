@@ -23,6 +23,7 @@ const initialDeliveryForm = {
   recipientName: '',
   recipientPhone: '',
   senderName: '',
+  senderDocument: '',
   senderPhone: '',
   cep: '',
   street: '',
@@ -72,6 +73,7 @@ function DeliveryPage() {
     formData.recipientName,
     formData.recipientPhone,
     formData.senderName,
+    formData.senderDocument,
     formData.cep,
     formData.street,
     formData.number,
@@ -317,6 +319,17 @@ function DeliveryPage() {
                         value={formData.senderPhone}
                         onChange={handleFieldChange}
                         placeholder="(11) 98888-8888"
+                      />
+                    </label>
+
+                    <label className="delivery-field">
+                      <span>CPF/CNPJ de quem envia *</span>
+                      <input
+                        type="text"
+                        name="senderDocument"
+                        value={formData.senderDocument}
+                        onChange={handleFieldChange}
+                        placeholder="000.000.000-00"
                       />
                     </label>
                   </div>

@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context'
 import routePaths from '../routes/routePaths'
-import { mockBaskets } from '../services'
+import { getBaskets } from '../services'
 import { formatCurrency } from '../utils'
 import './SelectBasketPage.css'
 import emporiologo from '../assets/emporiologo.jpg'
@@ -19,22 +19,54 @@ function SelectBasketPage() {
   const navigate = useNavigate()
   const { cart, selectBasket } = useCart()
   const [activeCapacity, setActiveCapacity] = useState(ALL_CAPACITIES_FILTER)
+  const [baskets, setBaskets] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState('')
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadBaskets() {
+      try {
+        const apiBaskets = await getBaskets()
+
+        if (isMounted) {
+          setBaskets(apiBaskets)
+          setErrorMessage('')
+        }
+      } catch {
+        if (isMounted) {
+          setErrorMessage('Nao foi possivel carregar as cestas da API.')
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadBaskets()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const capacityFilters = useMemo(() => {
-    const capacities = [...new Set(mockBaskets.map((basket) => basket.capacity))]
+    const capacities = [...new Set(baskets.map((basket) => basket.capacity))]
 
     return [ALL_CAPACITIES_FILTER, ...capacities.map((capacity) => `${capacity} itens`)]
-  }, [])
+  }, [baskets])
 
   const filteredBaskets = useMemo(() => {
     if (activeCapacity === ALL_CAPACITIES_FILTER) {
-      return mockBaskets
+      return baskets
     }
 
     const selectedCapacity = Number(activeCapacity.replace(/\D/g, ''))
 
-    return mockBaskets.filter((basket) => basket.capacity === selectedCapacity)
-  }, [activeCapacity])
+    return baskets.filter((basket) => basket.capacity === selectedCapacity)
+  }, [activeCapacity, baskets])
 
   function handleSelectBasket(basket) {
     selectBasket(basket)
@@ -84,7 +116,7 @@ function SelectBasketPage() {
 
             <div className="select-sidebar-highlight">
               <p className="sidebar-section-label">Curadoria premium</p>
-              <strong>{mockBaskets.length} modelos para presentes sob medida</strong>
+              <strong>{baskets.length} modelos para presentes sob medida</strong>
               <p className="sidebar-helper">
                 O total do pedido sera calculado com o preco da cesta mais os itens da
                 proxima etapa.
@@ -141,7 +173,7 @@ function SelectBasketPage() {
               <div className="capacity-bar" aria-hidden="true">
                 <span
                   style={{
-                    width: `${Math.max((filteredBaskets.length / mockBaskets.length) * 100, 12)}%`,
+                    width: `${Math.max((filteredBaskets.length / Math.max(baskets.length, 1)) * 100, 12)}%`,
                   }}
                 />
               </div>
@@ -166,6 +198,18 @@ function SelectBasketPage() {
                 {activeCapacity}
               </span>
             </div>
+
+            {isLoading && (
+              <div className="build-basket-notice" role="status" aria-live="polite">
+                Carregando cestas...
+              </div>
+            )}
+
+            {errorMessage && (
+              <div className="build-basket-notice" role="alert">
+                {errorMessage}
+              </div>
+            )}
 
             <div className="products-grid basket-products-grid">
               {filteredBaskets.map((basket) => {

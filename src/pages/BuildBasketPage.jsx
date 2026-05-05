@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useCart } from '../context'
 import routePaths from '../routes/routePaths'
-import { mockProducts } from '../services'
+import { PRODUCT_CATEGORIES, getProductsByCategories } from '../services'
 import { formatCurrency } from '../utils'
 import './BuildBasketPage.css'
 import emporiologo from '../assets/emporiologo.jpg'
@@ -22,6 +22,9 @@ function BuildBasketPage() {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [noticeMessage, setNoticeMessage] = useState('')
   const [isDeliveryConfirmOpen, setIsDeliveryConfirmOpen] = useState(false)
+  const [products, setProducts] = useState([])
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true)
+  const [productsErrorMessage, setProductsErrorMessage] = useState('')
 
   const {
     cart,
@@ -33,18 +36,47 @@ function BuildBasketPage() {
     orderTotal,
   } = useCart()
 
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadProducts() {
+      try {
+        const apiProducts = await getProductsByCategories()
+
+        if (isMounted) {
+          setProducts(apiProducts)
+          setProductsErrorMessage('')
+        }
+      } catch {
+        if (isMounted) {
+          setProductsErrorMessage('Nao foi possivel carregar os produtos da API.')
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingProducts(false)
+        }
+      }
+    }
+
+    loadProducts()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   const categories = useMemo(
-    () => [ALL_PRODUCTS_CATEGORY, ...new Set(mockProducts.map((product) => product.category))],
+    () => [ALL_PRODUCTS_CATEGORY, ...PRODUCT_CATEGORIES.map((category) => category.label)],
     [],
   )
 
   const filteredProducts = useMemo(() => {
     if (activeCategory === ALL_PRODUCTS_CATEGORY) {
-      return mockProducts
+      return products
     }
 
-    return mockProducts.filter((product) => product.category === activeCategory)
-  }, [activeCategory])
+    return products.filter((product) => product.category === activeCategory)
+  }, [activeCategory, products])
 
   const productQuantities = useMemo(() => {
     return cart.items.reduce((acc, item) => {
@@ -284,6 +316,18 @@ function BuildBasketPage() {
                 {filteredProducts.length} itens em {activeCategory}
               </span>
             </div>
+
+            {isLoadingProducts && (
+              <div className="build-basket-notice" role="status" aria-live="polite">
+                Carregando produtos...
+              </div>
+            )}
+
+            {productsErrorMessage && (
+              <div className="build-basket-notice" role="alert">
+                {productsErrorMessage}
+              </div>
+            )}
 
             <div className="products-grid">
               {filteredProducts.map((product) => {
